@@ -1,0 +1,37 @@
+version: 2.1
+
+jobs:
+  compile:
+    docker:
+      - image: kylemanna/aosp:latest
+
+    environment:
+      TERM: dumb
+
+    steps:
+      - checkout
+
+      - run:
+          name: Compile
+          command: echo "Before Compile"
+
+      - run:
+          name: Build 
+          command: mkdir build && cd build && ../tests/build-oreo.sh docker
+          environment:
+             USER: $(whoami)
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - compile
+  nightly:
+    triggers:
+      - schedule:
+          cron: "4 1 * * *"
+          filters:
+            branches:
+              only: master
+    jobs:
+      - compile
